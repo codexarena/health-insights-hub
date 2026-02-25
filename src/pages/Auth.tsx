@@ -42,6 +42,17 @@ const emailSchema = z.object({
 
 type AuthMode = "signIn" | "signUp" | "forgotPassword";
 
+const getAuthErrorMessage = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const lowered = message.toLowerCase();
+
+  if (lowered.includes("failed to fetch")) {
+    return "Cannot reach Supabase server. Verify VITE_SUPABASE_URL/project ref and your network DNS.";
+  }
+
+  return message || "An unexpected error occurred";
+};
+
 const Auth = () => {
   const [mode, setMode] = useState<AuthMode>("signIn");
   const [loading, setLoading] = useState(false);
@@ -102,7 +113,7 @@ const Auth = () => {
             "This email is already registered. Please sign in instead."
           );
         } else {
-          toast.error(error.message);
+          toast.error(getAuthErrorMessage(error));
         }
         return;
       }
@@ -146,7 +157,7 @@ const Auth = () => {
             "Please verify your email first. Check your inbox for the confirmation link."
           );
         } else {
-          toast.error(error.message);
+          toast.error(getAuthErrorMessage(error));
         }
         return;
       }
@@ -156,7 +167,7 @@ const Auth = () => {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
-        toast.error("An unexpected error occurred");
+        toast.error(getAuthErrorMessage(error));
       }
     } finally {
       setLoading(false);
@@ -178,7 +189,7 @@ const Auth = () => {
       );
 
       if (error) {
-        toast.error(error.message);
+        toast.error(getAuthErrorMessage(error));
         return;
       }
 
@@ -192,7 +203,7 @@ const Auth = () => {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
       } else {
-        toast.error("An unexpected error occurred");
+        toast.error(getAuthErrorMessage(error));
       }
     } finally {
       setLoading(false);

@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/supabase/(.*)",
+      "destination": "https://pilfrpusbydwghvaoarp.supabase.co/$1"
+    },
     { "source": "/(.*)", "destination": "/" }
   ]
 }

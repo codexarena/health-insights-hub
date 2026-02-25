@@ -2,8 +2,26 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const resolveSupabaseUrl = () => {
+  const proxyOverride = import.meta.env.VITE_SUPABASE_PROXY_URL as string | undefined;
+  if (proxyOverride) {
+    return proxyOverride;
+  }
+
+  // In browser, always prefer same-origin proxy so clients don't depend on direct *.supabase.co DNS resolution.
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/api/supabase`;
+  }
+
+  return import.meta.env.VITE_SUPABASE_URL;
+};
+
+const SUPABASE_URL = resolveSupabaseUrl();
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error("Supabase env is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
